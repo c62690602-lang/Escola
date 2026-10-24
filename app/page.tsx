@@ -4,399 +4,365 @@ import CTA from "@/components/cta";
 import {
   ArrowUpRight,
   ArrowRight,
+  Check,
   HeartPulse,
   ShieldCheck,
   Sprout,
-  Check,
-  Layers,
   Network,
   Sparkles,
+  Layers,
 } from "@/components/icons";
-import { moduleLinks } from "@/lib/content";
+import {
+  HeroNetwork,
+  SolutionExplorer,
+  ProgramJourney,
+  EverydayScenarios,
+  HomeFAQ,
+} from "@/components/home-experience";
 export const metadata = { alternates: { canonical: "/" } };
-
 export default function Home() {
   return (
-    <>
-      <section className="hero">
-        <div className="hero-grid" aria-hidden="true" />
-        <div className="container hero-content">
-          <span className="eyebrow">
-            <span className="live-dot" /> CERTTIFICA APRESENTA
-          </span>
-          <div className="hero-wordmark">
-            nexo<span className="wordmark-spark">✳</span>
+    <div className="modern-home">
+      <section className="modern-hero">
+        <div className="hero-ambient" aria-hidden="true" />
+        <div className="container modern-hero-grid">
+          <div className="modern-hero-copy">
+            <span className="eyebrow">
+              <span className="live-dot" /> CERTTIFICA APRESENTA
+            </span>
+            <div className="hero-product">
+              nexo<span>✳</span>
+            </div>
+            <p className="modern-signature">
+              Inteligência que conecta. Gestão que transforma.
+            </p>
+            <h1>
+              Mais clareza
+              <br />
+              para gerir.
+              <br />
+              <span>
+                Mais cuidado
+                <br className="hero-mobile-br" /> para conectar.
+              </span>
+            </h1>
+            <p className="modern-hero-description">
+              Saúde, segurança e pessoas no mesmo lugar. <br />
+              Uma plataforma para organizar. Uma equipe para acompanhar a sua
+              escola.
+            </p>
+            <div className="modern-hero-actions">
+              <Link href="/agendar-apresentacao" className="button">
+                Quero conhecer o NEXO <ArrowUpRight size={19} />
+              </Link>
+              <a href="#como-ajuda" className="hero-explore">
+                Explore a solução <ArrowRight size={17} />
+              </a>
+            </div>
+            <div className="modern-hero-proof">
+              <span>
+                <Check size={14} /> Programa anual
+              </span>
+              <span>
+                <Check size={14} /> Acompanhamento mensal
+              </span>
+            </div>
           </div>
-          <p className="hero-signature">
-            Inteligência que conecta. Gestão que transforma.
-          </p>
-          <h1>
-            Uma escola mais tranquila para gerir,
-            <br className="desktop-break" /> melhor para trabalhar e{" "}
-            <em>mais segura para confiar.</em>
-          </h1>
-          <p className="hero-description">
-            Uma solução integrada que conecta gestão, saúde, segurança,
-            prevenção, bem-estar e tecnologia para acompanhar a evolução da sua
-            instituição durante todo o ano.
-          </p>
-          <div className="hero-buttons">
-            <Link className="button" href="/solucao">
-              Conhecer o NEXO <ArrowRight size={17} />
+          <div className="modern-hero-visual">
+            <HeroNetwork />
+            <div className="hero-visual-caption">
+              <span>PLATAFORMA + PESSOAS + ACOMPANHAMENTO</span>
+              <span>Representação conceitual</span>
+            </div>
+          </div>
+        </div>
+        <div className="container hero-bottom-note">
+          <span>DA ROTINA DA ESCOLA À PRÓXIMA DECISÃO.</span>
+          <a href="#entenda">
+            Conheça um jeito mais conectado de cuidar <ArrowRight size={16} />
+          </a>
+        </div>
+      </section>
+      <section className="simple-intro section" id="entenda">
+        <div className="container">
+          <span className="eyebrow">O NEXO, EM POUCAS PALAVRAS</span>
+          <div className="intro-heading">
+            <h2>
+              Cuidar de uma escola
+              <br />
+              tem muitas partes.
+              <br />
+              <span>A gente ajuda a conectar.</span>
+            </h2>
+            <p>
+              O NEXO reúne tecnologia e acompanhamento técnico para organizar a
+              prevenção, apoiar as equipes e dar mais contexto às decisões da
+              direção.
+            </p>
+          </div>
+          <div className="value-grid">
+            {[
+              {
+                icon: Layers,
+                n: "01",
+                title: "Tudo mais organizado",
+                text: "Planos, protocolos, treinamentos e prioridades conectados em uma visão de gestão.",
+              },
+              {
+                icon: HeartPulse,
+                n: "02",
+                title: "Pessoas no centro",
+                text: "Saúde, segurança e condições de trabalho como parte da rotina da instituição.",
+              },
+              {
+                icon: Network,
+                n: "03",
+                title: "Apoio durante o ano",
+                text: "Implantação e uma reunião estratégica por mês. Você não precisa conduzir tudo sozinho.",
+              },
+            ].map((v) => (
+              <article className="value-card" key={v.n}>
+                <div>
+                  <v.icon size={27} />
+                  <span>{v.n}</span>
+                </div>
+                <h3>{v.title}</h3>
+                <p>{v.text}</p>
+              </article>
+            ))}
+          </div>
+        </div>
+      </section>
+      <section className="section modern-fronteirs" id="como-ajuda">
+        <div className="container">
+          <div className="modern-section-heading">
+            <div>
+              <span className="eyebrow">
+                ESCOLHA UMA FRENTE. VEJA A CONEXÃO.
+              </span>
+              <h2>
+                Três formas de cuidar.
+                <br />
+                <span>Um programa conectado.</span>
+              </h2>
+            </div>
+            <p>
+              Explore cada área e veja
+              <br />
+              como ela pode ajudar na prática.
+            </p>
+          </div>
+          <SolutionExplorer />
+          <div className="central-note">
+            <span>
+              <Network size={23} />
+            </span>
+            <p>
+              <strong>Uma Central de Inteligência conecta tudo.</strong> Dados
+              organizados, planos de ação e evidências para acompanhar as
+              prioridades.
+            </p>
+            <Link
+              href="/central-de-inteligencia"
+              aria-label="Conhecer a Central de Inteligência"
+            >
+              Conhecer a central <ArrowUpRight size={19} />
+            </Link>
+          </div>
+        </div>
+      </section>
+      <section className="section everyday-section">
+        <div className="container">
+          <div className="modern-section-heading">
+            <div>
+              <span className="eyebrow">
+                RECONHECE ALGUMA DESSAS SITUAÇÕES?
+              </span>
+              <h2>
+                A rotina já é complexa.
+                <br />
+                <span>Entender o próximo passo pode ser simples.</span>
+              </h2>
+            </div>
+          </div>
+          <EverydayScenarios />
+        </div>
+      </section>
+      <section className="section modern-demo" id="painel">
+        <div className="container">
+          <div className="modern-section-heading">
+            <div>
+              <span className="eyebrow light">
+                MENOS INFORMAÇÃO SOLTA. MAIS VISÃO DO TODO.
+              </span>
+              <h2>
+                O que merece atenção?
+                <br />
+                <span>O painel ajuda a enxergar.</span>
+              </h2>
+            </div>
+            <div>
+              <p>
+                Explore as abas e o período.
+                <br />
+                Veja como as informações se conectam.
+              </p>
+              <span className="demo-disclaimer">
+                <span className="live-dot" /> DEMONSTRAÇÃO · DADOS FICTÍCIOS
+              </span>
+            </div>
+          </div>
+          <div className="modern-dashboard-wrap">
+            <Dashboard full />
+          </div>
+          <div className="demo-bottom">
+            <span>
+              <ShieldCheck size={16} /> Treinamentos e prontidão
+            </span>
+            <span>
+              <HeartPulse size={16} /> Saúde e bem-estar
+            </span>
+            <span>
+              <Layers size={16} /> Planos e próximos passos
+            </span>
+          </div>
+        </div>
+      </section>
+      <section className="section modern-process">
+        <div className="container">
+          <div className="modern-section-heading">
+            <div>
+              <span className="eyebrow">
+                COMEÇAMOS JUNTOS. SEGUIMOS POR PERTO.
+              </span>
+              <h2>
+                Um começo estruturado.
+                <br />
+                <span>Um cuidado que continua.</span>
+              </h2>
+            </div>
+            <p>
+              Toque nas etapas para entender
+              <br />
+              como o programa acontece.
+            </p>
+          </div>
+          <ProgramJourney />
+        </div>
+      </section>
+      <section className="section modern-extras">
+        <div className="container">
+          <div className="modern-section-heading">
+            <div>
+              <span className="eyebrow">O CUIDADO TAMBÉM PODE IR ALÉM</span>
+              <h2>
+                Mais possibilidades.
+                <br />
+                <span>Do seu jeito.</span>
+              </h2>
+            </div>
+            <p>
+              Serviços complementares, planejados
+              <br />e contratados conforme cada proposta.
+            </p>
+          </div>
+          <div className="modern-extra-grid">
+            <Link href="/experiencias" className="modern-extra-card">
+              <span className="extra-icon">
+                <Sparkles size={25} />
+              </span>
+              <span className="eyebrow">PAUSA, ACOLHIMENTO E COMUNIDADE</span>
+              <h3>
+                Quem cuida
+                <br />
+                também precisa
+                <br />
+                <em>de cuidado.</em>
+              </h3>
+              <p>
+                Conheça as possibilidades de bem-estar, cuidado individual e
+                experiências para famílias e profissionais.
+              </p>
+              <span className="extra-card-link">
+                Explorar experiências <ArrowUpRight size={21} />
+              </span>
             </Link>
             <Link
-              className="button button-outline"
-              href="/agendar-apresentacao"
+              href="/experiencia-digital"
+              className="modern-extra-card extra-digital"
             >
-              Agendar uma apresentação <ArrowUpRight size={17} />
-            </Link>
-          </div>
-          <div className="hero-proof">
-            <span>
-              <Check size={13} /> Plataforma + acompanhamento técnico
-            </span>
-            <span>
-              <Check size={13} /> Cuidado durante todo o ano
-            </span>
-          </div>
-        </div>
-        <div className="container dashboard-stage">
-          <div className="floating-label label-left">
-            <span className="floating-icon">
-              <HeartPulse size={20} />
-            </span>
-            <div>
-              Cuidado conectado<strong>Pessoas no centro.</strong>
-            </div>
-            <span className="live-dot" />
-          </div>
-          <Dashboard />
-          <div className="floating-label label-right">
-            <span className="floating-icon">
-              <ShieldCheck size={20} />
-            </span>
-            <div>
-              Gestão preventiva<strong>Um passo à frente.</strong>
-            </div>
-          </div>
-        </div>
-        <div className="container hero-caption">
-          <span>UMA VISÃO INTEGRADA PARA QUEM CUIDA DA EDUCAÇÃO</span>
-          <span>Painel conceitual · Dados fictícios</span>
-        </div>
-      </section>
-      <section className="trust-strip">
-        <div className="container trust-content">
-          <span>
-            TECNOLOGIA COM PROPÓSITO.
-            <br />
-            <strong>ACOMPANHAMENTO DE VERDADE.</strong>
-          </span>
-          <div>
-            <HeartPulse /> Saúde e bem-estar
-          </div>
-          <div>
-            <ShieldCheck /> Segurança e prevenção
-          </div>
-          <div>
-            <Network /> Inteligência de gestão
-          </div>
-        </div>
-      </section>
-      <section className="section challenges">
-        <div className="container two-col">
-          <div>
-            <span className="eyebrow">
-              A ROTINA É COMPLEXA. O CUIDADO PODE SER CONECTADO.
-            </span>
-            <h2>
-              Gerir uma escola é cuidar
-              <br />
-              de muito mais
-              <br />
-              do que <span className="serif-word">ensinar.</span>
-            </h2>
-          </div>
-          <div>
-            <p className="lead">
-              Entre pessoas, prazos e imprevistos, quem cuida da escola também
-              precisa de apoio.
-            </p>
-            <p>
-              Novas contratações, capacitações, documentos, saúde e segurança.
-              Demandas de famílias e profissionais, emergências e fatores
-              psicossociais relacionados ao trabalho.
-            </p>
-            <p>
-              Não é falta de dedicação. Muitas vezes, faltam tempo, informações
-              conectadas e acompanhamento para que a prevenção encontre espaço
-              na rotina.
-            </p>
-            <Link className="text-link" href="/solucao">
-              É aqui que o NEXO conecta <ArrowUpRight size={17} />
-            </Link>
-          </div>
-        </div>
-        <div className="container journey-strip">
-          {[
-            "Antecipar",
-            "Organizar",
-            "Cuidar",
-            "Acompanhar",
-            "Comprovar",
-            "Evoluir",
-          ].map((t, i) => (
-            <div key={t}>
-              <span>0{i + 1}</span>
-              <strong>{t}</strong>
-              {i < 5 && <ArrowRight size={15} />}
-            </div>
-          ))}
-        </div>
-      </section>
-      <section className="section ecosystem" id="modulos">
-        <div className="container">
-          <div className="section-heading">
-            <div>
-              <span className="eyebrow">UM ECOSSISTEMA. VÁRIAS CONEXÕES.</span>
-              <h2>
-                Três frentes de cuidado.
-                <br />
-                <span className="serif-word">Uma gestão mais completa.</span>
-              </h2>
-            </div>
-            <Link className="text-link" href="/modulos">
-              Explore a solução <ArrowUpRight size={17} />
-            </Link>
-          </div>
-          <div className="module-grid">
-            {moduleLinks.map((m, i) => {
-              const Icon = [HeartPulse, ShieldCheck, Sprout][i];
-              return (
-                <Link
-                  className={`module-card module-${i}`}
-                  href={m.href}
-                  key={m.href}
-                >
-                  <div className="module-top">
-                    <span className="module-icon">
-                      <Icon size={27} />
-                    </span>
-                    <span>{m.tag} / NEXO</span>
-                  </div>
-                  <h3>{m.title}</h3>
-                  <p>{m.text}</p>
-                  <div className="module-bottom">
-                    <span>Conhecer esta frente</span>
-                    <ArrowUpRight size={20} />
-                  </div>
-                </Link>
-              );
-            })}
-          </div>
-          <Link href="/central-de-inteligencia" className="intelligence-band">
-            <span className="intelligence-icon">
-              <Network size={28} />
-            </span>
-            <div>
-              <span className="eyebrow">A CONEXÃO ENTRE TODAS AS FRENTES</span>
-              <h3>Central de Inteligência NEXO</h3>
-              <p>
-                Informações organizadas. Prioridades visíveis. Decisões com
-                contexto.
-              </p>
-            </div>
-            <span className="round-arrow">
-              <ArrowUpRight />
-            </span>
-          </Link>
-        </div>
-      </section>
-      <section className="section continuous">
-        <div className="container two-col">
-          <div
-            className="connection-art"
-            aria-label="Plataforma, equipe técnica e instituição conectadas"
-          >
-            <div className="orbit orbit-one" />
-            <div className="orbit orbit-two" />
-            <div className="connection-core">
-              nexo<span>CONEXÕES QUE CUIDAM</span>
-            </div>
-            <span className="orbit-node node-one">
-              <Layers size={20} /> Plataforma digital
-            </span>
-            <span className="orbit-node node-two">
-              <HeartPulse size={20} /> Equipe técnica
-            </span>
-            <span className="orbit-node node-three">
-              <Network size={20} /> Sua instituição
-            </span>
-            <span className="orbit-small one" />
-            <span className="orbit-small two" />
-          </div>
-          <div>
-            <span className="eyebrow">MUITO ALÉM DO ACESSO A UM SOFTWARE</span>
-            <h2>
-              Você não precisa
-              <br />
-              fazer tudo <span className="serif-word">sozinho.</span>
-            </h2>
-            <p className="lead">
-              Tecnologia para organizar.
-              <br />
-              Pessoas para acompanhar.
-            </p>
-            <p>
-              O NEXO combina plataforma digital, implementação e acompanhamento
-              técnico. Um programa anual com ações preventivas e uma reunião
-              estratégica por mês para transformar informação em movimento.
-            </p>
-            <ul className="check-list">
-              <li>
-                <Check /> Implantação estruturada nos primeiros 60 dias
-              </li>
-              <li>
-                <Check /> Planos com responsáveis, prazos e evidências
-              </li>
-              <li>
-                <Check /> Acompanhamento mensal das próximas prioridades
-              </li>
-            </ul>
-            <Link href="/como-funciona" className="text-link">
-              Entenda a jornada do programa <ArrowUpRight size={17} />
-            </Link>
-          </div>
-        </div>
-      </section>
-      <section className="section care-section">
-        <div className="container">
-          <div className="section-heading">
-            <div>
-              <span className="eyebrow">O CUIDADO GANHA NOVOS ESPAÇOS</span>
-              <h2>
-                Mais presença.
-                <br />
-                <span className="serif-word">Mais possibilidades.</span>
-              </h2>
-            </div>
-            <p>
-              Experiências complementares, planejadas
-              <br />
-              para a realidade de cada instituição.
-            </p>
-          </div>
-          <div className="care-grid">
-            <Link href="/experiencias" className="care-card">
-              <Sparkles />
-              <span>01 / BEM-ESTAR</span>
-              <h3>
-                Uma pausa que
-                <br />
-                também é cuidado.
-              </h3>
-              <p>
-                Espaço Pausa, acolhimento e valorização de quem faz a escola
-                acontecer.
-              </p>
-              <ArrowUpRight />
-            </Link>
-            <Link href="/experiencias" className="care-card">
-              <HeartPulse />
-              <span>02 / COMUNIDADE</span>
-              <h3>
-                Famílias próximas.
-                <br />
-                Uma rede mais forte.
-              </h3>
-              <p>
-                Saúde, prevenção e experiências que conectam a comunidade
-                escolar.
-              </p>
-              <ArrowUpRight />
-            </Link>
-            <Link href="/experiencia-digital" className="care-card">
-              <Layers />
-              <span>03 / EXPERIÊNCIA DIGITAL</span>
-              <h3>
-                Sua escola, conectada
-                <br />a novas oportunidades.
-              </h3>
-              <p>
-                Presença digital, conteúdos e recursos desenvolvidos sob medida.
-              </p>
-              <ArrowUpRight />
-            </Link>
-          </div>
-          <p className="section-note">
-            Serviços complementares sujeitos a planejamento e contratação
-            específica.
-          </p>
-        </div>
-      </section>
-      <section className="section accreditation-home">
-        <div className="container two-col">
-          <div>
-            <span className="eyebrow">ACREDITAÇÃO NEXO</span>
-            <h2>
-              Cada evolução
-              <br />
-              merece ser <span className="serif-word">reconhecida.</span>
-            </h2>
-            <p>
-              Uma jornada de estruturação e melhoria contínua. Três níveis de
-              reconhecimento privado do programa Certtifica.
-            </p>
-            <Link className="text-link" href="/acreditacao">
-              Conhecer a acreditação <ArrowUpRight size={17} />
-            </Link>
-          </div>
-          <div className="seal-group">
-            {["Essencial", "Avançado", "Excelência"].map((s, i) => (
-              <div className={`seal seal-${i}`} key={s}>
-                <ShieldCheck size={34} />
-                <span>NEXO</span>
-                <strong>{s}</strong>
-                <small>NÍVEL 0{i + 1}</small>
+              <div className="digital-art" aria-hidden="true">
+                <div />
+                <div />
+                <div />
+                <span>
+                  nexo<span>✳</span>
+                </span>
               </div>
-            ))}
-            <p>
-              Selos ilustrativos · Não representam concessões efetivas.
-              <br />
-              Reconhecimento privado, sem certificação de conformidade legal.
-            </p>
+              <span className="eyebrow">EXPERIÊNCIA DIGITAL</span>
+              <h3>
+                Sua escola mais
+                <br />
+                conectada com
+                <br />
+                <em>novas possibilidades.</em>
+              </h3>
+              <p>
+                Sites, conteúdos e recursos digitais desenvolvidos sob medida
+                para a instituição.
+              </p>
+              <span className="extra-card-link">
+                Conhecer a Experiência Digital <ArrowUpRight size={21} />
+              </span>
+            </Link>
+          </div>
+          <div className="more-paths">
+            <Link href="/acreditacao">
+              <ShieldCheck size={22} />
+              <div>
+                <strong>Uma jornada de evolução</strong>
+                <span>
+                  Conheça a Acreditação NEXO, reconhecimento privado do
+                  programa.
+                </span>
+              </div>
+              <ArrowUpRight size={20} />
+            </Link>
+            <Link href="/visao-de-futuro">
+              <Sprout size={22} />
+              <div>
+                <strong>Começamos pela escola.</strong>
+                <span>
+                  Descubra nossa visão futura para redes e territórios.
+                </span>
+              </div>
+              <ArrowUpRight size={20} />
+            </Link>
           </div>
         </div>
       </section>
-      <section className="future-teaser">
-        <div className="container">
-          <span className="eyebrow light">VISÃO DE FUTURO</span>
-          <h2>
-            Começamos pela escola.
-            <br />
-            <span>Pensamos no território.</span>
-          </h2>
-          <div className="future-track">
-            <span>NEXO Escolas</span>
-            <ArrowRight />
-            <span>Rede NEXO</span>
-            <ArrowRight />
-            <span>Observatório</span>
-            <ArrowRight />
-            <span>Municípios</span>
-            <ArrowRight />
-            <span>Cidades inteligentes</span>
+      <section className="section modern-faq-section">
+        <div className="container modern-faq-grid">
+          <div>
+            <span className="eyebrow">VAMOS SIMPLIFICAR?</span>
+            <h2>
+              Boas perguntas.
+              <br />
+              <span>Respostas diretas.</span>
+            </h2>
+            <p>
+              Se preferir, a gente conversa
+              <br />
+              sobre a realidade da sua escola.
+            </p>
+            <Link href="/contato" className="text-link">
+              Fale com a equipe <ArrowUpRight size={17} />
+            </Link>
           </div>
-          <p>
-            Uma visão de expansão para conectar informações e fortalecer
-            comunidades.
-          </p>
-          <Link className="text-link" href="/visao-de-futuro">
-            Conheça o que nos move <ArrowUpRight size={17} />
-          </Link>
+          <HomeFAQ />
         </div>
       </section>
       <CTA />
-    </>
+    </div>
   );
 }

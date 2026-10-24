@@ -41,14 +41,18 @@ test("painel interativo, menu móvel e layout sem vazamento horizontal", async (
   await page.goto("/");
   await page.getByRole("button", { name: "Somente necessários" }).click();
   await page.getByRole("tab", { name: "Planos de ação" }).click();
-  await expect(page.getByRole("tabpanel")).toContainText(
+  await expect(page.locator(".dashboard").getByRole("tabpanel")).toContainText(
     "Revisar distribuição",
   );
   await page.getByRole("tab", { name: "Calendário", exact: true }).click();
-  await expect(page.getByRole("tabpanel")).toContainText("Campanha sazonal");
+  await expect(page.locator(".dashboard").getByRole("tabpanel")).toContainText(
+    "Campanha sazonal",
+  );
   await page.getByRole("tab", { name: "Visão geral" }).click();
   await page.getByLabel("Mês da demonstração").selectOption("Setembro");
-  await expect(page.getByRole("tabpanel")).toContainText("91");
+  await expect(page.locator(".dashboard").getByRole("tabpanel")).toContainText(
+    "91",
+  );
   await page.evaluate(() => window.scrollTo({ top: 0, behavior: "instant" }));
   await page.screenshot({
     path: "test-results/home-desktop.png",
@@ -138,7 +142,10 @@ test("acessibilidade automatizada em páginas representativas", async ({
     await page.goto(route);
     await page.evaluate(async () => {
       await Promise.all(
-        document.getAnimations().map((a) => a.finished.catch(() => {})),
+        document
+          .getAnimations()
+          .filter((a) => a.effect?.getTiming().iterations !== Infinity)
+          .map((a) => a.finished.catch(() => {})),
       );
     });
     const results = await new AxeBuilder({ page })
@@ -156,4 +163,59 @@ test("acessibilidade automatizada em páginas representativas", async ({
       route,
     ).toEqual([]);
   }
+});
+
+test("exploração das frentes, cenários, jornada e dúvidas funciona com mouse e teclado", async ({
+  page,
+}) => {
+  await page.goto("/");
+  await page.getByRole("button", { name: "Somente necessários" }).click();
+  await page.locator(".network-node").filter({ hasText: "Saúde" }).click();
+  await expect(page.locator(".scene-insight")).toContainText(
+    "SER Saúde na Escola",
+  );
+  await page.getByRole("button", { name: "Pausar animações" }).click();
+  await expect(page.locator(".ring-b")).toHaveCSS(
+    "animation-play-state",
+    "paused",
+  );
+  const tabs = page.getByRole("tablist", { name: "Frentes de cuidado" });
+  await tabs.getByRole("tab", { name: /Prontidão/ }).click();
+  await expect(page.locator("#front-panel")).toContainText(
+    "Novos profissionais na escola",
+  );
+  await tabs.getByRole("tab", { name: /Prontidão/ }).press("ArrowRight");
+  await expect(tabs.getByRole("tab", { name: /Saúde/ })).toBeFocused();
+  await expect(page.locator("#front-panel")).toContainText("Retorno às aulas");
+  await page
+    .getByRole("button", { name: "A equipe mudou. E os treinamentos?" })
+    .click();
+  await expect(page.locator(".situation-result")).toContainText(
+    "Histórico e planejamento",
+  );
+  await page
+    .getByRole("button", { name: "Informações dispersas", exact: true })
+    .click();
+  await expect(page.locator(".situation-result")).toContainText(
+    "Uma nova contratação",
+  );
+  await page
+    .getByRole("tablist", { name: "Etapas do programa" })
+    .getByRole("tab", { name: /Acompanhar/ })
+    .click();
+  await expect(page.locator("#journey-panel")).toContainText(
+    "Uma reunião estratégica por mês",
+  );
+  await page
+    .getByRole("button", {
+      name: "O NEXO substitui o sistema que minha escola já usa?",
+    })
+    .click();
+  await expect(
+    page.getByRole("region", {
+      name: "O NEXO substitui o sistema que minha escola já usa?",
+    }),
+  ).toContainText("não é um sistema de notas");
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  await expect(page.locator(".ring-b")).toHaveCSS("animation-name", "none");
 });

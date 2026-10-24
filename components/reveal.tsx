@@ -19,7 +19,9 @@ export default function Reveal() {
       { threshold: 0.08 },
     );
     document
-      .querySelectorAll(".module-card,.content-card,.care-card")
+      .querySelectorAll(
+        ".module-card,.content-card,.care-card,.value-card,.modern-extra-card,.scenario-card,.monthly-card",
+      )
       .forEach((el) => observer.observe(el));
     return () => observer.disconnect();
   }, [path]);

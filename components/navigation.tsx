@@ -1,6 +1,7 @@
 "use client";
 import Link from "next/link";
 import { useState } from "react";
+import ScrollProgress from "./scroll-progress";
 import { usePathname } from "next/navigation";
 import { ArrowUpRight, Menu, X } from "./icons";
 const groups = [
@@ -55,7 +56,20 @@ export default function Navigation() {
   const access = process.env.NEXT_PUBLIC_NEXO_URL;
   const valid = access && /^https:\/\//.test(access);
   return (
-    <header className="site-header">
+    <header
+      className="site-header"
+      onKeyDown={(e) => {
+        if (e.key === "Escape") {
+          const details = (e.target as HTMLElement).closest("details");
+          if (details) {
+            details.removeAttribute("open");
+            details.querySelector("summary")?.focus();
+          } else {
+            setOpen(false);
+          }
+        }
+      }}
+    >
       <div className="nav-wrap">
         <Brand />
         <button
@@ -125,6 +139,7 @@ export default function Navigation() {
           </div>
         </nav>
       </div>
+      <ScrollProgress />
     </header>
   );
 }

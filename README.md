@@ -2,6 +2,8 @@
 
 Site institucional e comercial em português do Brasil. Next.js App Router, TypeScript, Tailwind CSS 4, componentes próprios, ícones Lucide e backend Node.js. Assinatura NEXO provisória; identificação Certtifica somente textual, sem reprodução de logotipo oficial.
 
+![Prévia da nova página inicial NEXO](docs/preview-desktop.png)
+
 ## Desenvolvimento
 
 Requisitos: Node.js 24 (inclui `node:sqlite`), npm e Chromium para testes de navegador. Use o checkout existente; as tarefas na nuvem já são isoladas e não precisam de worktree adicional.
@@ -25,7 +27,7 @@ npm run test:e2e
 npm run build
 ```
 
-Os testes unitários cobrem validação e assinatura de sessões. E2E usa Chromium em `/usr/bin/chromium` (substitua com `CHROMIUM_PATH`), porta 3100 exclusiva, banco temporário e senha aleatória somente para testes. Cobre as 18 rotas públicas, metadados, 404, menu em celular, painel interativo, envio real, consulta e exclusão autenticadas e auditoria axe WCAG A/AA em páginas representativas. Capturas de desktop/celular em `test-results/`, ignoradas pelo Git. Auditoria automatizada não comprova conformidade WCAG completa; revisão manual com teclado, leitores de tela e dispositivos reais continua necessária.
+Os testes unitários cobrem validação e assinatura de sessões. E2E usa Chromium em `/usr/bin/chromium` (substitua com `CHROMIUM_PATH`), porta 3100 exclusiva, banco temporário e senha aleatória somente para testes. Cobre as 18 rotas públicas, metadados, 404, menu em celular, painel interativo, exploração das frentes, cenários da rotina, jornada clicável, FAQ, pausa de animações, envio real, consulta e exclusão autenticadas e auditoria axe WCAG A/AA em páginas representativas. Capturas de desktop/celular em `test-results/`, ignoradas pelo Git. Auditoria automatizada não comprova conformidade WCAG completa; revisão manual com teclado, leitores de tela e dispositivos reais continua necessária.
 
 ## Rotas
 
@@ -75,3 +77,9 @@ CRM: integrar no servidor somente após persistência, preferencialmente com fil
 Não há clientes, depoimentos, estatísticas de resultados, credenciais ou parcerias inventadas. Os números do painel são fictícios. Expansão para redes, observatório, municípios e cidades inteligentes é identificada como visão futura. Experiências e modernização digital dependem de contratação específica. Não há ERP acadêmico ou financeiro neste projeto.
 
 Nenhum deploy, merge ou publicação é realizado automaticamente.
+
+## Experiência visual e interações
+
+A página inicial apresenta o programa em mensagens curtas: o que é, como ajuda e como acontece. O mapa de conexões permite explorar Pessoas, Prontidão e Saúde; as abas mostram exemplos concretos, identificados como ilustrativos. A comparação de situações da rotina, a jornada em três etapas e as perguntas frequentes respondem a cliques e teclado, sem carrosséis automáticos.
+
+As animações decorativas contínuas do mapa têm controle de pausa. A preferência `prefers-reduced-motion` é respeitada nas animações CSS e nas entradas em rolagem. Conteúdo permanece disponível sem depender de animações. O indicador no cabeçalho acompanha o progresso de leitura.
