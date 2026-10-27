@@ -4,7 +4,7 @@
 
 Entre como administrador Certtifica e abra **Usuários e acessos** no menu lateral. Selecione a instituição. A tela lista os vínculos e os últimos 100 convites. Somente administradores globais podem listar e gerenciar acessos; esta regra é verificada no servidor. Não se pode conceder administração global pela tela ou pelo convite.
 
-Papéis fixos: gestor, diretor, especialista, RH e acolhimento. Nesta etapa o gestor pode operar e os demais papéis têm leitura de registros operacionais não sensíveis. Acolhimento permanece indisponível para todos. Permissões por módulo/unidade ainda não foram implementadas.
+Papéis fixos: gestor, diretor, especialista, RH e acolhimento. O padrão do gestor permite operar; os demais têm leitura de registros operacionais não sensíveis. A administração pode personalizar tarefas, unidades, relatórios e auditoria por vínculo. Acolhimento permanece indisponível para todos. Escopo por unidade e permissões de novos módulos ainda não foram implementados. Alterar um papel restaura suas permissões padrão; salvar permissões explícitas substitui esse padrão.
 
 Alteração de papel e revogação de vínculo encerram as sessões da pessoa em **todas** as instituições. Revogar vínculo não apaga conta, histórico ou vínculos com outras escolas. Administradores globais não são rebaixados por esta operação.
 
@@ -22,7 +22,7 @@ Em **Esqueci minha senha**, informe o e-mail. Com DEMO_MODE=true, a solicitaçã
 
 A resposta é igual para conta inexistente e limite excedido. Limite de três solicitações por conta em 15 minutos, com prefixo separado do limite de login. Uma nova solicitação revoga os tokens anteriores. Validade de 30 minutos, uso único e senha de pelo menos 14 caracteres. A redefinição invalida todas as sessões e gera auditoria. O link usa fragmento, que não é enviado ao servidor pela navegação; o cliente remove o fragmento da barra e envia o token no corpo JSON ao confirmar. Novos links abertos na mesma página também são processados.
 
-Fora do modo de demonstração, o endpoint retorna 503 até existir entrega segura real. Configuração de SMTP/provedor, templates, confirmação de entrega, retenção da caixa de saída e controles adicionais contra abuso são pendências. Não usar esse mecanismo local como recuperação de produção. MFA permanece pendente.
+Fora do modo de demonstração, o endpoint retorna 503 até existir entrega segura real. Configuração de SMTP/provedor, templates, confirmação de entrega, retenção da caixa de saída e controles adicionais contra abuso são pendências. Não usar esse mecanismo local como recuperação de produção. MFA TOTP está disponível em /seguranca. Ver docs/fundacao-fase1.md.
 
 ## API
 
@@ -33,7 +33,7 @@ Todas as mutações exigem JSON e origem válida. As rotas institucionais exigem
 | GET `/api/institutions/:id/access`                      | Pessoas vinculadas e histórico de convites, sem hashes nem tokens            |
 | POST `/api/institutions/:id/invitations`                | `{email,role}`; retorna `{id,token}` uma única vez ao administrador          |
 | PATCH `/api/institutions/:id/invitations/:invitationId` | Revoga convite pendente                                                      |
-| PATCH `/api/institutions/:id/members/:userId`           | `{role}` ou `{revoke:true}`                                                  |
+| PATCH `/api/institutions/:id/members/:userId`           | `{role}`, `{permissions:[...]}`, `{permissions:null}` ou `{revoke:true}`     |
 | POST `/api/auth/invitations/accept`                     | `{token,name,password?}`; exige sessão correspondente quando conta já existe |
 | POST `/api/auth/recovery`                               | `{email}`; resposta genérica; somente entrega local em demonstração          |
 | POST `/api/auth/reset`                                  | `{token,password}`; redefinição e revogação de sessões                       |

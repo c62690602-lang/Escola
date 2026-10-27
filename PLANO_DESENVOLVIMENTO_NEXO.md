@@ -1,5 +1,7 @@
 # Plano de desenvolvimento NEXO — CERTTIFICA
 
+Referência funcional: [brief mestre fornecido pelo usuário](docs/BRIEF_MESTRE_NEXO.md).
+
 ## Objetivo e situação inicial
 
 Plataforma operacional multiempresa para coordenar escolas, equipes e parceiros a distância, sem substituir validação humana técnica, clínica ou jurídica. Este plano incorpora o novo prompt mestre de 30 seções e preserva os requisitos anteriores compatíveis.
@@ -28,14 +30,14 @@ A evolução por unidade/módulo só será ativada com testes que provem restri�
 
 ## Fases e critérios de aceitação
 
-| Fase | Escopo | Critério de conclusão |
-|---|---|---|
-| 1 — Fundação funcional | Banco, identidade, usuários, MFA privilegiado, instituições/unidades, permissões, Central e Portal Escola, auditoria | Login real, MFA confirmado, escrita autorizada, isolamento entre duas escolas, estados vazios e painel com fontes reais; build/lint/testes aprovados |
-| 2 — Gestão operacional | Diagnóstico, matriz de obrigações, colaboradores, documentos, ocorrências, riscos, treinamentos, calendário e notificações | Diagnóstico aprovado gera plano rastreável; admissão consulta regras revisadas; evidências privadas e prazos corretos |
-| 3 — Saúde e prevenção | Psicossocial, bem-estar, Espaço Pausa, Prontidão/Lei Lucas, Ser Saúde, campanhas e comunicação com famílias | Agregação com limiares; segregação de acolhimento; participação/evidências verificadas; divulgação aprovada pela escola |
-| 4 — Inteligência e automação | Regras configuráveis, filas/jobs, tendências, relatórios, reuniões, IA e escalonamento | Idempotência, retries, fontes explicáveis, decisões aprovadas geram tarefas, nenhuma decisão sensível automática |
-| 5 — Operação comercial | Portal parceiros, qualificação, serviços, contratos, financeiro e acreditação | Serviço solicitado/validado/aceito/executado/revisado; concessão formal; sem movimentar pagamentos sem autorização |
-| 6 — Consolidação e expansão | Carga, segurança, recuperação, acessibilidade, governança de redes/municípios | Testes e revisões documentados, restauração comprovada, escopo de compartilhamento explícito |
+| Fase                         | Escopo                                                                                                                     | Critério de conclusão                                                                                                                                |
+| ---------------------------- | -------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1 — Fundação funcional       | Banco, identidade, usuários, MFA privilegiado, instituições/unidades, permissões, Central e Portal Escola, auditoria       | Login real, MFA confirmado, escrita autorizada, isolamento entre duas escolas, estados vazios e painel com fontes reais; build/lint/testes aprovados |
+| 2 — Gestão operacional       | Diagnóstico, matriz de obrigações, colaboradores, documentos, ocorrências, riscos, treinamentos, calendário e notificações | Diagnóstico aprovado gera plano rastreável; admissão consulta regras revisadas; evidências privadas e prazos corretos                                |
+| 3 — Saúde e prevenção        | Psicossocial, bem-estar, Espaço Pausa, Prontidão/Lei Lucas, Ser Saúde, campanhas e comunicação com famílias                | Agregação com limiares; segregação de acolhimento; participação/evidências verificadas; divulgação aprovada pela escola                              |
+| 4 — Inteligência e automação | Regras configuráveis, filas/jobs, tendências, relatórios, reuniões, IA e escalonamento                                     | Idempotência, retries, fontes explicáveis, decisões aprovadas geram tarefas, nenhuma decisão sensível automática                                     |
+| 5 — Operação comercial       | Portal parceiros, qualificação, serviços, contratos, financeiro e acreditação                                              | Serviço solicitado/validado/aceito/executado/revisado; concessão formal; sem movimentar pagamentos sem autorização                                   |
+| 6 — Consolidação e expansão  | Carga, segurança, recuperação, acessibilidade, governança de redes/municípios                                              | Testes e revisões documentados, restauração comprovada, escopo de compartilhamento explícito                                                         |
 
 Testes de qualidade são executados em todas as fases; a Fase 6 amplia a cobertura, não adia segurança para o fim.
 
@@ -59,3 +61,7 @@ Responsáveis habilitados devem revisar aplicabilidade e versões normativas, in
 Dados exclusivamente sintéticos, identificados como demonstração. Testes negativos de sessão expirada, segundo fator ausente/incorreto/repetido, códigos consumidos, privilégios insuficientes, tentativa entre instituições e estados sem dados. Migrações novas e repetidas devem passar. Testar formulários reais e persistência, não apenas renderização. Documentar fontes e período dos indicadores e distinguir funcionalidades concluídas, futuras e dependências externas.
 
 Nenhum deploy de produção está autorizado por este prompt. A demonstração existente não será alterada automaticamente. Ao concluir o incremento, apresentar funcionalidades, arquivos, migrações, rotas, resultados, pendências, comandos e próximas prioridades. A fundação não equivale ao produto completo nem à liberação comercial.
+
+## Estado deste incremento
+
+Central, permissões institucionais, fuso e MFA implementados e validados. São 35 testes de integração, quatro fluxos de navegador e um fluxo HTTP local de produção com MFA obrigatório, além de build/lint/TypeScript e migrações. O setup repetido preservou a chave MFA existente. O detalhamento e as pendências estão em [docs/fundacao-fase1.md](docs/fundacao-fase1.md). A Fase 1 completa ainda tem itens pendentes; nenhuma atualização da demonstração foi executada.

@@ -35,6 +35,8 @@ Nesta instância já há demonstração: `admin@nexo.example` e `diretor@nexo.ex
 7. Arquivar tarefas sem apagar o histórico. Diretor atribuído tem leitura; gestor atribuído pode operar.
 8. Abrir **Usuários e acessos** como administrador para gerar convites, alterar papéis e revogar vínculos.
 9. Usar **Esqueci minha senha** para validar recuperação local de demonstração. Veja [fluxos de acesso](docs/access.md).
+10. Consultar **Central Certtifica** para a carteira consolidada e **Segurança da conta** para cadastrar MFA.
+11. Personalizar permissões de tarefas, unidades, relatórios e auditoria na tela de acessos.
 
 O vencimento é derivado do prazo e status, sem concluir tarefas automaticamente. Não há notificações agendadas nesta etapa. Os registros persistem no PostgreSQL. Atribuição nominal de tarefa ainda é textual, não um vínculo com usuário.
 
@@ -57,6 +59,10 @@ Playwright usa `/usr/bin/chromium`; configure `CHROMIUM_PATH` quando necessário
 ## Demonstração online
 
 Configuração de hospedagem e publicação em [docs/online-demo.md](docs/online-demo.md). O site comercial na branch `nexo-site` é separado do sistema de gestão. Ainda não existe URL pública confirmada.
+
+## Plano e evolução atual
+
+O [plano mestre](PLANO_DESENVOLVIMENTO_NEXO.md) organiza as seis fases. O [incremento da Fase 1](docs/fundacao-fase1.md) registra a Central, as permissões e o MFA já implementados, os testes e o que ainda falta. Nenhuma publicação é realizada automaticamente.
 
 ## Documentação
 

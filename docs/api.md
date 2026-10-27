@@ -29,8 +29,12 @@ Todos usam tarefas da instituição ativa com `archived_at IS NULL`, atualizados
 | Ações concluídas  | Contagem com status concluída                                       | 0                                         |
 | Implantação       | Etapas concluídas / etapas ativas de implantação × 100, arredondado | Sem projeto: null, exibido como travessão |
 
-Datas de prazo são datas civis, não instantes. A definição de dia nos indicadores usa UTC nesta versão; fuso por instituição é evolução necessária. Relatório JSON contém somente dados efetivamente cadastrados, inclusive auditoria e progresso. PDF, gráficos históricos e aprovação de publicação ainda não implementados.
+Datas de prazo são datas civis, não instantes. O atraso exibido no portal e no painel central usa o fuso IANA da instituição (padrão America/Sao_Paulo). O fuso é informado no cadastro. Relatório JSON contém somente dados efetivamente cadastrados, inclusive auditoria e progresso. PDF, gráficos históricos e aprovação de publicação ainda não implementados.
 
 ## Gestão de contas
 
 As rotas de convites, papéis e recuperação estão descritas em [Usuários e acessos](access.md). A entrega de recuperação é somente local em demonstração; envio real por e-mail permanece indisponível.
+
+## Fundação ampliada
+
+GET `/api/central` retorna agregações reais, data de atualização e fontes ausentes; somente administrador com sessão operacional. Os endpoints `/api/auth/security` e `/api/auth/mfa/*` e o contrato de permissões estão descritos em [fundacao-fase1.md](fundacao-fase1.md). POST `/api/institutions` aceita `timezone` IANA. GET `/api/institutions/:id` retorna `capabilities`; trilha de auditoria é omitida quando não autorizada. Exportar relatório exige `reports.read`.

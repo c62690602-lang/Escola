@@ -17,7 +17,7 @@ A configuração solicita planos `free`, quando disponíveis na conta e região.
 5. Usar o endereço HTTPS real atribuído pelo Render. `RENDER_EXTERNAL_URL` define a origem permitida para login e mutações; domínio próprio exige configurar `APP_ORIGIN` com a origem HTTPS exata e reiniciar.
 6. Entrar com `admin@nexo.example` para testar operações ou `diretor@nexo.example` para leitura da instituição fictícia. Ambos usam inicialmente a senha gerada no painel. Não inserir dados reais nesta demonstração.
 
-A aplicação desativa entrega local de recuperação quando `PUBLIC_DEMO=true`; o fluxo informa sua indisponibilidade, sem fingir envio de e-mail. Não há MFA nem entrega real de e-mail nesta etapa. Não disponibilizar como serviço comercial de produção.
+A aplicação desativa entrega local de recuperação quando `PUBLIC_DEMO=true`; o fluxo informa sua indisponibilidade, sem fingir envio de e-mail. O incremento local acrescenta MFA TOTP; para ativá-lo no destino, configurar MFA_ENCRYPTION_KEY estável e REQUIRE_ADMIN_MFA=true antes do deploy. O Blueprint atualizado propõe ambas as variáveis e requer revisão. Não há entrega real de e-mail. Não disponibilizar como serviço comercial de produção.
 
 ## Verificações antes de compartilhar
 
@@ -29,3 +29,5 @@ A aplicação desativa entrega local de recuperação quando `PUBLIC_DEMO=true`;
 - Páginas têm `X-Robots-Tag` e `robots.txt` para não indexação. Isso não substitui autenticação.
 
 Acesso online só é considerado entregue depois de um deploy confirmado e destes testes no endereço final. Build e teste local, branch no GitHub e publicação do ambiente Codex não comprovam hospedagem externa. Nunca anunciar um link presumido.
+
+As alterações da Fase 1 ainda não foram publicadas nesta etapa. A demonstração que o usuário abriu pode executar o commit anterior; é necessário verificar a versão e revisar as novas variáveis antes de qualquer atualização.
