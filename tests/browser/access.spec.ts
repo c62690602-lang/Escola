@@ -83,6 +83,9 @@ test("convite, aceitação, gestão de papel, recuperação e revogação comple
   const linkInput = page.getByLabel("Link privado do convite");
   await expect(linkInput).toBeVisible();
   const link = await linkInput.inputValue();
+  await page.getByLabel("Instituição", { exact: true }).selectOption(schoolId);
+  await expect(linkInput).toBeVisible();
+  await expect(page.getByText(email, { exact: true })).toBeVisible();
   await accessible(page);
   const context = await browser.newContext();
   const invited = await context.newPage();

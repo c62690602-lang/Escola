@@ -386,6 +386,7 @@ export function Workspace({
                 aria-label="Instituição ativa"
                 value={selected}
                 onChange={(e) => {
+                  if (e.target.value === selected) return;
                   setData(null);
                   setSelected(e.target.value);
                 }}

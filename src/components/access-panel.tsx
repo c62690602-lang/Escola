@@ -97,6 +97,7 @@ export function AccessPanel({
           disabled={busy}
           value={selected}
           onChange={(e) => {
+            if (e.target.value === selected) return;
             setSelected(e.target.value);
             setData(null);
             setLink("");
