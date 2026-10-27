@@ -1,8 +1,20 @@
 "use client";
 import Link from "next/link";
+import {
+  permissionKeys,
+  permissionLabels,
+  effectivePermissions,
+  type Permission,
+} from "@/lib/permissions";
 import { useState, useEffect, useCallback } from "react";
 type Access = {
-  members: { id: string; name: string; email: string; role: string }[];
+  members: {
+    id: string;
+    name: string;
+    email: string;
+    role: string;
+    permissions: string[] | null;
+  }[];
   invitations: {
     id: string;
     email: string;
@@ -180,9 +192,9 @@ export function AccessPanel({
           <section className="panel">
             <h2>Pessoas com acesso</h2>
             <p className="muted small">
-              Gestor pode operar; os demais papéis têm leitura nesta etapa.
-              Alterar ou revogar acesso encerra as sessões da pessoa em todas as
-              instituições.
+              O papel define permissões iniciais; personalizações substituem
+              esse padrão apenas nesta instituição. Alterar ou revogar acesso
+              encerra as sessões da pessoa em todas as instituições.
             </p>
             <div className="table-scroll">
               <table>
@@ -190,6 +202,7 @@ export function AccessPanel({
                   <tr>
                     <th>PESSOA</th>
                     <th>PAPEL</th>
+                    <th>PERMISSÕES</th>
                     <th>AÇÃO</th>
                   </tr>
                 </thead>
@@ -222,6 +235,52 @@ export function AccessPanel({
                             </option>
                           ))}
                         </select>
+                      </td>
+                      <td>
+                        <details>
+                          <summary>Personalizar permissões</summary>
+                          <form
+                            key={JSON.stringify(m.permissions) + m.role}
+                            onSubmit={async (e) => {
+                              e.preventDefault();
+                              const values = new FormData(
+                                e.currentTarget,
+                              ).getAll("permissions") as Permission[];
+                              await mutate("members/" + m.id, {
+                                permissions: values,
+                              });
+                            }}
+                          >
+                            {permissionKeys.map((key) => (
+                              <label className="permission-option" key={key}>
+                                <input
+                                  type="checkbox"
+                                  name="permissions"
+                                  value={key}
+                                  defaultChecked={effectivePermissions(
+                                    m,
+                                  ).includes(key)}
+                                />
+                                {permissionLabels[key]}
+                              </label>
+                            ))}
+                            <button className="secondary" disabled={busy}>
+                              Salvar permissões
+                            </button>
+                            <button
+                              type="button"
+                              className="text-button"
+                              disabled={busy}
+                              onClick={() =>
+                                void mutate("members/" + m.id, {
+                                  permissions: null,
+                                })
+                              }
+                            >
+                              Restaurar padrão do papel
+                            </button>
+                          </form>
+                        </details>
                       </td>
                       <td>
                         <button

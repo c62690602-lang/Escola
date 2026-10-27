@@ -6,6 +6,7 @@ import {
   timestamp,
   date,
   primaryKey,
+  bigint,
 } from "drizzle-orm/pg-core";
 export const users = pgTable("users", {
   id: uuid().primaryKey(),
@@ -15,6 +16,8 @@ export const users = pgTable("users", {
   platformAdmin: boolean("platform_admin").notNull().default(false),
 });
 export const sessions = pgTable("sessions", {
+  mfaVerified: boolean("mfa_verified").notNull().default(false),
+  setupOnly: boolean("setup_only").notNull().default(false),
   tokenHash: text("token_hash").primaryKey(),
   userId: uuid("user_id")
     .notNull()
@@ -26,6 +29,7 @@ export const institutions = pgTable("institutions", {
   name: text().notNull(),
   city: text().notNull(),
   state: text().notNull(),
+  timezone: text().notNull().default("America/Sao_Paulo"),
   status: text().notNull(),
   createdAt: timestamp("created_at", { withTimezone: true })
     .notNull()
@@ -41,6 +45,7 @@ export const memberships = pgTable(
       .notNull()
       .references(() => institutions.id),
     role: text().notNull(),
+    permissions: text().array(),
   },
   (t) => [primaryKey({ columns: [t.userId, t.institutionId] })],
 );
@@ -105,4 +110,16 @@ export const accountTokens = pgTable("account_tokens", {
   createdAt: timestamp("created_at", { withTimezone: true })
     .notNull()
     .defaultNow(),
+});
+
+export const mfaCredentials = pgTable("mfa_credentials", {
+  userId: uuid("user_id")
+    .primaryKey()
+    .references(() => users.id),
+  secretEncrypted: text("secret_encrypted"),
+  pendingEncrypted: text("pending_encrypted"),
+  pendingUntil: timestamp("pending_until", { withTimezone: true }),
+  enabledAt: timestamp("enabled_at", { withTimezone: true }),
+  lastCounter: bigint("last_counter", { mode: "number" }).notNull().default(-1),
+  recoveryHashes: text("recovery_hashes").array().notNull().default([]),
 });

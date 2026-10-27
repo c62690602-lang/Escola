@@ -7,6 +7,7 @@ export const dynamic = "force-dynamic";
 export default async function Page() {
   const actor = await sessionUser((await cookies()).get("nexo_session")?.value);
   if (!actor) redirect("/login");
+  if (actor.needsMfaSetup) redirect("/seguranca");
   if (!actor.platformAdmin) redirect("/");
   const schools = await portfolio(actor);
   return (

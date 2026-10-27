@@ -7,6 +7,12 @@ import { db } from "@/lib/db";
 import { sessions } from "@/lib/schema";
 import * as svc from "@/lib/service";
 import * as access from "@/lib/access";
+import * as mfa from "@/lib/mfa";
+import {
+  MfaRequiredError,
+  MfaInvalidError,
+  MfaConfigurationError,
+} from "@/lib/mfa-crypto";
 export const runtime = "nodejs";
 async function readJson(req: NextRequest) {
   if (!req.headers.get("content-type")?.includes("application/json"))
@@ -54,9 +60,14 @@ async function handle(
         .object({
           email: z.email().max(254),
           password: z.string().min(1).max(256),
+          code: z.string().max(40).optional(),
         })
         .parse(await readJson(req));
-      const token = await login(body.email, body.password);
+      const token = await login(
+        body.email,
+        body.password,
+        body.code || undefined,
+      );
       if (!token)
         return NextResponse.json(
           { error: "E-mail ou senha inválidos" },
@@ -69,9 +80,29 @@ async function handle(
         path: "/",
         maxAge: 28800,
       });
-      return NextResponse.json({ ok: true });
+      const authenticated = await sessionUser(token);
+      return NextResponse.json({
+        ok: true,
+        needsMfaSetup: authenticated?.needsMfaSetup ?? false,
+      });
     }
     const actor = await sessionUser(jar.get("nexo_session")?.value);
+    if (
+      actor?.needsMfaSetup &&
+      ![
+        "auth/security",
+        "auth/mfa/setup",
+        "auth/mfa/confirm",
+        "auth/logout",
+      ].includes(route)
+    )
+      return NextResponse.json(
+        {
+          error: "Conclua o cadastro de MFA antes de acessar a operação",
+          code: "MFA_SETUP_REQUIRED",
+        },
+        { status: 403 },
+      );
     if (route === "auth/invitations/accept" && method === "POST") {
       await access.acceptInvitation(await readJson(req), actor);
       return NextResponse.json({ ok: true });
@@ -98,6 +129,35 @@ async function handle(
       const token = jar.get("nexo_session")?.value;
       if (token)
         await db.delete(sessions).where(eq(sessions.tokenHash, digest(token)));
+      jar.delete("nexo_session");
+      return NextResponse.json({ ok: true });
+    }
+    if (route === "central" && method === "GET")
+      return NextResponse.json(await svc.commandCenter(actor));
+    if (route === "auth/security" && method === "GET")
+      return NextResponse.json(await mfa.mfaStatus(actor));
+    if (route === "auth/mfa/setup" && method === "POST")
+      return NextResponse.json(
+        await mfa.beginMfaSetup(actor, await readJson(req)),
+      );
+    if (route === "auth/mfa/confirm" && method === "POST")
+      return NextResponse.json(
+        await mfa.confirmMfaSetup(
+          actor,
+          jar.get("nexo_session")!.value,
+          await readJson(req),
+        ),
+      );
+    if (actor.needsMfaSetup)
+      return NextResponse.json(
+        {
+          error: "Conclua o cadastro de MFA antes de acessar a operação",
+          code: "MFA_SETUP_REQUIRED",
+        },
+        { status: 403 },
+      );
+    if (route === "auth/mfa/disable" && method === "POST") {
+      await mfa.disableMfa(actor, await readJson(req));
       jar.delete("nexo_session");
       return NextResponse.json({ ok: true });
     }
@@ -149,6 +209,7 @@ async function handle(
         return NextResponse.json({ ok: true }, { status: 201 });
       }
       if (resource === "report" && method === "GET") {
+        await svc.authorize(actor, id, "reports.read");
         const data = await svc.overview(actor, id);
         return NextResponse.json({
           version: 1,
@@ -162,6 +223,18 @@ async function handle(
     }
     return NextResponse.json({ error: "Rota não encontrada" }, { status: 404 });
   } catch (error) {
+    if (error instanceof MfaRequiredError)
+      return NextResponse.json(
+        { error: error.message, mfaRequired: true },
+        { status: 401 },
+      );
+    if (error instanceof MfaInvalidError)
+      return NextResponse.json(
+        { error: error.message, mfaRequired: true },
+        { status: 401 },
+      );
+    if (error instanceof MfaConfigurationError)
+      return NextResponse.json({ error: error.message }, { status: 503 });
     if (error instanceof SyntaxError)
       return NextResponse.json({ error: "JSON inválido" }, { status: 400 });
     if (error instanceof RangeError)

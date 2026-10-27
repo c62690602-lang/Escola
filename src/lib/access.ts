@@ -4,6 +4,7 @@ import path from "node:path";
 import { and, eq, desc, gt, isNull, sql } from "drizzle-orm";
 import { z } from "zod";
 import { db, pool } from "./db";
+import { permissionsInput } from "./permissions";
 import { accountTokens, users, memberships, audits, sessions } from "./schema";
 import { digest, hashPassword, type Actor } from "./auth";
 import { authorize, AccessError, ConflictError, uuid } from "./service";
@@ -32,6 +33,7 @@ export async function listAccess(actor: Actor, id: string) {
         name: users.name,
         email: users.email,
         role: memberships.role,
+        permissions: memberships.permissions,
       })
       .from(memberships)
       .innerJoin(users, eq(users.id, memberships.userId))
@@ -158,8 +160,9 @@ export async function changeMembership(
   uuid.parse(userId);
   const change = z
     .union([
-      z.object({ role: roleInput }),
-      z.object({ revoke: z.literal(true) }),
+      z.object({ role: roleInput }).strict(),
+      z.object({ permissions: permissionsInput.nullable() }).strict(),
+      z.object({ revoke: z.literal(true) }).strict(),
     ])
     .parse(input);
   await db.transaction(async (tx) => {
@@ -182,7 +185,16 @@ export async function changeMembership(
       eq(memberships.userId, userId),
     );
     if ("revoke" in change) await tx.delete(memberships).where(filter);
-    else await tx.update(memberships).set({ role: change.role }).where(filter);
+    else if ("permissions" in change)
+      await tx
+        .update(memberships)
+        .set({ permissions: change.permissions })
+        .where(filter);
+    else
+      await tx
+        .update(memberships)
+        .set({ role: change.role, permissions: null })
+        .where(filter);
     // Revoke all sessions so stale navigation cannot imply an obsolete authorization.
     await tx.delete(sessions).where(eq(sessions.userId, userId));
     await tx.insert(audits).values({
@@ -192,12 +204,16 @@ export async function changeMembership(
       action:
         "revoke" in change
           ? "membership.revoked"
-          : `membership.role.${change.role}`,
+          : "permissions" in change
+            ? `membership.permissions.${change.permissions?.join(",") ?? "default"}`
+            : `membership.role.${change.role}`,
       entityId: userId,
     });
   });
 }
 export async function acceptInvitation(input: unknown, actor: Actor | null) {
+  if (actor?.needsMfaSetup)
+    throw new AccessError("Conclua o cadastro do segundo fator");
   const data = z
     .object({
       token: tokenInput,

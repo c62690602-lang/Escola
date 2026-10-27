@@ -10,8 +10,10 @@ import {
   projects,
   audits,
   sessions,
+  mfaCredentials,
 } from "../src/lib/schema";
 import { hashPassword, digest } from "../src/lib/auth";
+import { totpFor } from "../src/lib/mfa-crypto";
 const base = process.env.SMOKE_URL ?? "http://127.0.0.1:3000";
 const origin = process.env.SMOKE_ORIGIN ?? base;
 const password = randomUUID();
@@ -53,6 +55,18 @@ try {
   assert.equal(login.status, 200);
   const cookie = login.headers.get("set-cookie")!.split(";")[0];
   assert.ok(login.headers.get("set-cookie")!.includes("HttpOnly"));
+  if ((await login.json()).needsMfaSetup) {
+    const setup = await api("auth/mfa/setup", "POST", { password }, cookie);
+    assert.equal(setup.status, 200);
+    const material = await setup.json();
+    const confirmation = await api(
+      "auth/mfa/confirm",
+      "POST",
+      { code: totpFor(material.manualKey).generate() },
+      cookie,
+    );
+    assert.equal(confirmation.status, 200);
+  }
   for (let i = 0; i < 2; i++) {
     const res = await api(
       "institutions",
@@ -156,11 +170,18 @@ try {
     await db.delete(institutions).where(eq(institutions.id, id));
   }
   for (const id of [adminId, directorId]) {
+    await db.delete(audits).where(eq(audits.actorId, id));
+    await db.delete(mfaCredentials).where(eq(mfaCredentials.userId, id));
     await db.delete(sessions).where(eq(sessions.userId, id));
     await db.delete(users).where(eq(users.id, id));
   }
   await pool.query("DELETE FROM login_attempts WHERE key_hash=ANY($1)", [
-    [digest(adminEmail), digest(directorEmail)],
+    [
+      digest(adminEmail),
+      digest(directorEmail),
+      digest("mfa:" + adminId),
+      digest("mfa:" + directorId),
+    ],
   ]);
   await pool.end();
 }

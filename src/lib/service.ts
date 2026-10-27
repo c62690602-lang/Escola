@@ -1,4 +1,4 @@
-import { and, eq, isNull, desc } from "drizzle-orm";
+import { and, eq, isNull, desc, sql } from "drizzle-orm";
 import { z } from "zod";
 import { randomUUID } from "node:crypto";
 import { db } from "./db";
@@ -11,11 +11,28 @@ import {
   audits,
 } from "./schema";
 import type { Actor } from "./auth";
+import {
+  effectivePermissions,
+  permissionKeys,
+  type Permission,
+} from "./permissions";
 export class AccessError extends Error {}
 export class ConflictError extends Error {}
 export const uuid = z.uuid();
 const short = z.string().trim().min(2).max(160);
+export const timezoneInput = z
+  .string()
+  .max(80)
+  .refine((value) => {
+    try {
+      new Intl.DateTimeFormat("pt-BR", { timeZone: value });
+      return true;
+    } catch {
+      return false;
+    }
+  }, "Fuso horário IANA inválido");
 export const institutionInput = z.object({
+  timezone: timezoneInput.default("America/Sao_Paulo"),
   name: short,
   city: z.string().trim().max(100).default(""),
   state: z.string().trim().max(2).default(""),
@@ -30,8 +47,10 @@ export const taskInput = z.object({
 export async function authorize(
   actor: Actor,
   institutionId: string,
-  write = false,
+  write: boolean | Permission = false,
 ) {
+  if (actor.needsMfaSetup)
+    throw new AccessError("Conclua o cadastro do segundo fator");
   uuid.parse(institutionId);
   const [institution] = await db
     .select()
@@ -48,11 +67,16 @@ export async function authorize(
         eq(memberships.institutionId, institutionId),
       ),
     );
-  if (!member || (write && member.role !== "gestor"))
-    throw new AccessError("Acesso negado");
-  return member.role === "gestor";
+  if (!member) throw new AccessError("Acesso negado");
+  const capabilities = effectivePermissions(member);
+  const required = write === true ? "tasks.write" : write;
+  if (required && !capabilities.includes(required))
+    throw new AccessError("Permissão insuficiente");
+  return capabilities.includes("tasks.write");
 }
 export async function portfolio(actor: Actor) {
+  if (actor.needsMfaSetup)
+    throw new AccessError("Conclua o cadastro do segundo fator");
   if (actor.platformAdmin)
     return db.select().from(institutions).orderBy(institutions.name);
   return db
@@ -70,7 +94,8 @@ export async function portfolio(actor: Actor) {
     .orderBy(institutions.name);
 }
 export async function createInstitution(actor: Actor, input: unknown) {
-  if (!actor.platformAdmin) throw new AccessError("Acesso negado");
+  if (!actor.platformAdmin || actor.needsMfaSetup)
+    throw new AccessError("Acesso negado");
   const data = institutionInput.parse(input);
   const id = randomUUID();
   await db.transaction(async (tx) => {
@@ -88,7 +113,23 @@ export async function createInstitution(actor: Actor, input: unknown) {
   return id;
 }
 export async function overview(actor: Actor, id: string) {
-  const canManage = await authorize(actor, id);
+  await authorize(actor, id);
+  const [member] = actor.platformAdmin
+    ? []
+    : await db
+        .select()
+        .from(memberships)
+        .where(
+          and(
+            eq(memberships.userId, actor.id),
+            eq(memberships.institutionId, id),
+          ),
+        );
+  if (!actor.platformAdmin && !member) throw new AccessError("Acesso negado");
+  const capabilities = actor.platformAdmin
+    ? [...permissionKeys]
+    : effectivePermissions(member!);
+  const canManage = capabilities.includes("tasks.write");
   const [institution] = await db
     .select()
     .from(institutions)
@@ -106,15 +147,18 @@ export async function overview(actor: Actor, id: string) {
     .select()
     .from(units)
     .where(and(eq(units.institutionId, id), isNull(units.archivedAt)));
-  const history = await db
-    .select()
-    .from(audits)
-    .where(eq(audits.institutionId, id))
-    .orderBy(desc(audits.createdAt))
-    .limit(30);
+  const history = capabilities.includes("audit.read")
+    ? await db
+        .select()
+        .from(audits)
+        .where(eq(audits.institutionId, id))
+        .orderBy(desc(audits.createdAt))
+        .limit(30)
+    : [];
   const steps = records.filter((t) => t.onboarding);
   return {
     canManage,
+    capabilities,
     institution,
     tasks: records,
     project: project ?? null,
@@ -273,7 +317,7 @@ export async function startOnboarding(
   });
 }
 export async function createUnit(actor: Actor, id: string, input: unknown) {
-  await authorize(actor, id, true);
+  await authorize(actor, id, "units.write");
   const data = z.object({ name: short }).parse(input);
   const entityId = randomUUID();
   await db.transaction(async (tx) => {
@@ -289,4 +333,57 @@ export async function createUnit(actor: Actor, id: string, input: unknown) {
 }
 export async function confidentialAccess() {
   throw new AccessError("Módulo de acolhimento não habilitado nesta versão");
+}
+
+export async function commandCenter(actor: Actor) {
+  if (!actor.platformAdmin || actor.needsMfaSetup)
+    throw new AccessError("Painel restrito à administração Certtifica");
+  const result = await db.execute(sql`
+ SELECT i.id,i.name,i.city,i.state,i.timezone,i.status,
+ (SELECT count(*)::int FROM units u WHERE u.institution_id=i.id AND u.archived_at IS NULL) AS units,
+ (SELECT count(*)::int FROM tasks t WHERE t.institution_id=i.id AND t.archived_at IS NULL AND t.status<>'concluida') AS open_tasks,
+ (SELECT count(*)::int FROM tasks t WHERE t.institution_id=i.id AND t.archived_at IS NULL AND t.status<>'concluida' AND t.due_on < (CURRENT_TIMESTAMP AT TIME ZONE i.timezone)::date) AS overdue_tasks,
+ (SELECT count(*)::int FROM tasks t WHERE t.institution_id=i.id AND t.archived_at IS NULL AND t.status<>'concluida' AND t.priority='alta') AS high_priority,
+ (SELECT count(*)::int FROM tasks t WHERE t.institution_id=i.id AND t.archived_at IS NULL AND t.onboarding) AS steps,
+ (SELECT count(*)::int FROM tasks t WHERE t.institution_id=i.id AND t.archived_at IS NULL AND t.onboarding AND t.status='concluida') AS completed_steps,
+ EXISTS(SELECT 1 FROM onboarding_projects p WHERE p.institution_id=i.id) AS has_project
+ FROM institutions i ORDER BY i.name`);
+  type Row = {
+    id: string;
+    name: string;
+    city: string;
+    state: string;
+    timezone: string;
+    status: string;
+    units: number;
+    open_tasks: number;
+    overdue_tasks: number;
+    high_priority: number;
+    steps: number;
+    completed_steps: number;
+    has_project: boolean;
+  };
+  const institutionsData = (result.rows as Row[]).map((r) => ({
+    ...r,
+    progress: r.steps ? Math.round((r.completed_steps / r.steps) * 100) : null,
+  }));
+  return {
+    updatedAt: new Date().toISOString(),
+    institutions: institutionsData,
+    totals: {
+      institutions: institutionsData.length,
+      units: institutionsData.reduce((n, r) => n + r.units, 0),
+      openTasks: institutionsData.reduce((n, r) => n + r.open_tasks, 0),
+      overdueTasks: institutionsData.reduce((n, r) => n + r.overdue_tasks, 0),
+      highPriority: institutionsData.reduce((n, r) => n + r.high_priority, 0),
+      onboardingStarted: institutionsData.filter((r) => r.has_project).length,
+    },
+    unavailableIndicators: [
+      "Colaboradores",
+      "Treinamentos",
+      "Documentos",
+      "Contratos",
+      "Receita recorrente",
+    ],
+  };
 }

@@ -7,6 +7,11 @@ if [ ! -f .env.local ]; then
   umask 077
   printf '%s\n' 'DATABASE_URL=postgresql://nexo:nexo_local_development@127.0.0.1:5432/nexo' 'DEMO_MODE=true' > .env.local
 fi
+node --env-file=.env.local --input-type=module <<'NODE'
+import {appendFileSync,chmodSync} from 'node:fs';
+import {randomBytes} from 'node:crypto';
+if(!process.env.MFA_ENCRYPTION_KEY){appendFileSync('.env.local','\nMFA_ENCRYPTION_KEY='+randomBytes(32).toString('hex')+'\n');chmodSync('.env.local',0o600);}
+NODE
 fresh_database=false
 if docker container inspect nexo-postgres >/dev/null 2>&1; then
   docker start nexo-postgres >/dev/null

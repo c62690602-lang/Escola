@@ -6,6 +6,7 @@ export function LoginForm() {
   const router = useRouter();
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
+  const [mfaRequired, setMfaRequired] = useState(false);
   return (
     <form
       method="post"
@@ -21,11 +22,13 @@ export function LoginForm() {
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(Object.fromEntries(data)),
           });
+          const result = await response.json();
           if (!response.ok) {
-            setError((await response.json()).error);
+            setError(result.error);
+            if (result.mfaRequired) setMfaRequired(true);
             return;
           }
-          router.push("/");
+          router.push(result.needsMfaSetup ? "/seguranca" : "/");
           router.refresh();
         } catch {
           setError("Não foi possível conectar. Tente novamente.");
@@ -56,6 +59,20 @@ export function LoginForm() {
           required
         />
       </label>
+      {mfaRequired && (
+        <label>
+          Código do autenticador ou de recuperação
+          <input
+            name="code"
+            autoComplete="one-time-code"
+            maxLength={40}
+            required
+          />
+          <span className="muted small">
+            Use um código novo. Códigos já utilizados são recusados.
+          </span>
+        </label>
+      )}
       {error && (
         <p role="alert" className="error">
           {error}

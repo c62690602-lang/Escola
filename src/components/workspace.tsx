@@ -41,7 +41,8 @@ type Task = {
 };
 type Overview = {
   canManage: boolean;
-  institution: School;
+  capabilities: string[];
+  institution: School & { timezone: string };
   tasks: Task[];
   progress: number | null;
   project: { startsOn: string; endsOn: string } | null;
@@ -71,17 +72,23 @@ async function request(path: string, method = "GET", body?: unknown) {
 }
 export function Workspace({
   actor,
+  initialInstitutionId,
   initialSchools,
   demo,
 }: {
   actor: Actor;
+  initialInstitutionId?: string;
   initialSchools: School[];
   demo: boolean;
 }) {
   const router = useRouter();
   const dialogRef = useRef<HTMLDialogElement>(null);
   const [schools, setSchools] = useState(initialSchools);
-  const [selected, setSelected] = useState(initialSchools[0]?.id ?? "");
+  const [selected, setSelected] = useState(
+    initialSchools.find((s) => s.id === initialInstitutionId)?.id ??
+      initialSchools[0]?.id ??
+      "",
+  );
   const [data, setData] = useState<Overview | null>(null);
   const [view, setView] = useState("overview");
   const [modal, setModal] = useState<
@@ -119,7 +126,12 @@ export function Workspace({
       active = false;
     };
   }, [selected]);
-  const today = new Date().toISOString().slice(0, 10);
+  const today = new Intl.DateTimeFormat("en-CA", {
+    timeZone: data?.institution.timezone ?? "America/Sao_Paulo",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).format(new Date());
   const tasks = data?.tasks ?? [];
   const open = tasks.filter((t) => t.status !== "concluida");
   const overdue = open.filter((t) => t.dueOn < today);
@@ -171,6 +183,23 @@ export function Workspace({
       setError((e as Error).message);
     }
   }
+  async function downloadReport() {
+    try {
+      const report = await request(`institutions/${selected}/report`);
+      const url = URL.createObjectURL(
+        new Blob([JSON.stringify(report, null, 2)], {
+          type: "application/json",
+        }),
+      );
+      const anchor = document.createElement("a");
+      anchor.href = url;
+      anchor.download = "nexo-relatorio-operacional.json";
+      anchor.click();
+      URL.revokeObjectURL(url);
+    } catch (e) {
+      setError((e as Error).message);
+    }
+  }
   return (
     <div className="app-shell">
       <aside className={"sidebar " + (mobile ? "mobile-open" : "")}>
@@ -187,26 +216,51 @@ export function Workspace({
             { id: "tasks", label: "Planos e tarefas", icon: ClipboardList },
             { id: "calendar", label: "Agenda", icon: CalendarDays },
             { id: "audit", label: "Auditoria", icon: ShieldCheck },
-          ].map((n) => (
-            <button
-              key={n.id}
-              className={view === n.id ? "nav-active" : ""}
-              onClick={() => {
-                setView(n.id);
-                setMobile(false);
-              }}
-            >
-              <n.icon size={19} />
-              {n.label}
-              {view === n.id && <ChevronRight size={15} />}
-            </button>
-          ))}
+          ]
+            .filter(
+              (n) =>
+                n.id !== "audit" ||
+                actor.platformAdmin ||
+                data?.capabilities.includes("audit.read"),
+            )
+            .map((n) => (
+              <button
+                key={n.id}
+                className={view === n.id ? "nav-active" : ""}
+                onClick={() => {
+                  setView(n.id);
+                  setMobile(false);
+                }}
+              >
+                <n.icon size={19} />
+                {n.label}
+                {view === n.id && <ChevronRight size={15} />}
+              </button>
+            ))}
           {actor.platformAdmin && (
             <button onClick={() => router.push("/acessos")}>
               <ShieldCheck size={19} />
               Usuários e acessos
             </button>
           )}
+          {actor.platformAdmin && (
+            <button onClick={() => router.push("/central")}>
+              <LayoutDashboard size={19} />
+              Central Certtifica
+            </button>
+          )}
+          <button onClick={() => router.push("/seguranca")}>
+            <ShieldCheck size={19} />
+            Segurança da conta
+          </button>
+          {selected &&
+            (actor.platformAdmin ||
+              data?.capabilities.includes("reports.read")) && (
+              <button onClick={downloadReport}>
+                <Download size={19} />
+                Relatório da instituição
+              </button>
+            )}
         </nav>
         <div className="sidebar-bottom">
           <div className="program-icon">
@@ -564,7 +618,8 @@ export function Workspace({
                         </span>
                       )}
                     </div>
-                    {canWrite && (
+                    {(actor.platformAdmin ||
+                      data.capabilities.includes("units.write")) && (
                       <button
                         className="secondary"
                         onClick={() => setModal("unit")}
@@ -770,6 +825,10 @@ export function Workspace({
                       <p>Últimas 30 operações registradas no servidor.</p>
                     </div>
                     <button
+                      disabled={
+                        !actor.platformAdmin &&
+                        !data.capabilities.includes("reports.read")
+                      }
                       className="secondary"
                       onClick={async () => {
                         try {
@@ -869,6 +928,19 @@ export function Workspace({
                     <input name="state" maxLength={2} />
                   </label>
                 </div>
+              )}
+              {modal === "institution" && (
+                <label>
+                  Fuso horário
+                  <select name="timezone" defaultValue="America/Sao_Paulo">
+                    <option value="America/Sao_Paulo">
+                      Brasília / São Paulo
+                    </option>
+                    <option value="America/Manaus">Manaus</option>
+                    <option value="America/Rio_Branco">Rio Branco</option>
+                    <option value="America/Noronha">Fernando de Noronha</option>
+                  </select>
+                </label>
               )}
               {modal === "task" && (
                 <>

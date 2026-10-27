@@ -18,6 +18,10 @@ services:
         value: "true"
       - key: PUBLIC_DEMO
         value: "true"
+      - key: MFA_ENCRYPTION_KEY
+        generateValue: true
+      - key: REQUIRE_ADMIN_MFA
+        value: "true"
       - key: DEMO_PASSWORD
         generateValue: true
       - key: DATABASE_URL
